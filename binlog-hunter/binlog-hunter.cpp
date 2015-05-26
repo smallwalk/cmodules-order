@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 02110-1301  USA
 */
 
-#include "cache.h"
 #include "glog/logging.h"
 using namespace std;
 /*
@@ -114,9 +113,6 @@ class row_handler : public mysql::Content_handler
 
 		int init(config* conf){
 			m_conf = conf;
-			if(0 != m_cache.load(*conf)){
-				return -1;
-			}
 			if(0 != m_cache_key.load(*conf)){
 				return -2;
 			}
@@ -139,7 +135,7 @@ class row_handler : public mysql::Content_handler
 			string table_name = tit->second->table_name;
 
 			//hack
-			if (table_name != "brd_goods_info" && table_name != "brd_goods_sku_info") {
+			if (table_name != "bat" && table_name != "brd_goods_sku_info") {
 				return event;
 			}
 
@@ -163,8 +159,8 @@ class row_handler : public mysql::Content_handler
 				do{
 					mysql::Row_of_fields fields = *it;
 					long int timestamp = event->header()->timestamp;
-					//if(g_debug_flag)
-						//print_row(db_name, table_name, timestamp, fields);
+
+					/*
 					cache_key* ck = m_cache_key.table2key(db_name, table_name, fields);
 					if(ck){
 						int ret = 0;
@@ -181,6 +177,7 @@ class row_handler : public mysql::Content_handler
 								<<"] binlog["<<g_binlogfile<<"] offset["<<g_offset<<"] event["<<event->get_event_type()
 								<<"] del cache key["<<ck->gen_key()<<"]";
 					}
+					*/
 				}while(++it != rows.end());
 			}catch(const std::logic_error& le){
 				LOG(ERROR)<< "MySQL Data Type error: " << le.what();
@@ -213,7 +210,6 @@ class row_handler : public mysql::Content_handler
 		Binary_log* m_bin;
 		config* m_conf;
 		cache_key_factory m_cache_key;
-		cache m_cache;
 };
 //
 
