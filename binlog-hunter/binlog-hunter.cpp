@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 */
 
 #include "glog/logging.h"
+#include "cache.h"
 using namespace std;
 /*
   Here is a basic system using the event loop to fetch context events
@@ -109,14 +110,13 @@ class xid_handler : public mysql::Content_handler
 class row_handler : public mysql::Content_handler
 {
 	public:
-		row_handler(Table_Index* ti) : m_ti(ti),  m_conf(NULL) {}   
+		row_handler(Table_Index* ti) : m_ti(ti),  m_conf(NULL) {}
 
 		int init(config* conf){
 			m_conf = conf;
 			if(0 != m_cache_key.load(*conf)){
 				return -2;
 			}
-			
 			return 0;
 		}
 
@@ -135,7 +135,7 @@ class row_handler : public mysql::Content_handler
 			string table_name = tit->second->table_name;
 
 			//hack
-			if (table_name != "bat" && table_name != "brd_goods_sku_info") {
+			if (table_name != "brd_goods_info" && table_name != "brd_goods_sku_info") {
 				return event;
 			}
 
@@ -150,7 +150,7 @@ class row_handler : public mysql::Content_handler
 					<<"] event["<<event->get_event_type()<<"]";
 				return event;
 			}
-			
+
 			LOG_IF(INFO, g_debug_flag)<<"process a row event "
 				<<"binlog["<<g_binlogfile<<"] offset["<<g_offset<<"] tableid["<<table_id<<"] event["<<event->get_event_type()<<"]";
 
@@ -159,6 +159,10 @@ class row_handler : public mysql::Content_handler
 				do{
 					mysql::Row_of_fields fields = *it;
 					long int timestamp = event->header()->timestamp;
+
+					std::cout << "table: " << table_name << std::endl;
+					
+
 
 					/*
 					cache_key* ck = m_cache_key.table2key(db_name, table_name, fields);
@@ -187,31 +191,12 @@ class row_handler : public mysql::Content_handler
 			return NULL;
 		}
 
-		void print_row(const std::string& db, const std::string& table, long int timestamp, const mysql::Row_of_fields& fields){
-			mysql::Converter converter;
-			int col = 0;
-			int field_index_cnt = 0;
-
-			std::string row_id;
-			LOG_IF(INFO, g_debug_flag)<<"timestamp: "<<timestamp<<" size: "<<fields.size()
-				<<" db: "<<db<<" table: "<<table;
-
-			std::string data = "";
-			for(int i = 0; i < fields.size(); i++){
-				std::string str;
-				converter.to(str, fields[i]);
-				data += "|"+str;
-			}
-			LOG_IF(INFO, g_debug_flag)<<data<<"|";
-		}
-
 	private:
 		Table_Index* m_ti;
 		Binary_log* m_bin;
 		config* m_conf;
 		cache_key_factory m_cache_key;
 };
-//
 
 int load_position(std::string& file, unsigned long& offset){
 	ifstream ifs(GID, ios::in);
@@ -220,16 +205,16 @@ int load_position(std::string& file, unsigned long& offset){
 		offset = 4;
 		return -1;
 	}
-	
+
 	ifs>>file>>offset;
-	return 0;	
+	return 0;
 }
 
 int save_position(std::string& file, unsigned long offset){
 	ofstream ofs(GID, ios::out);
     if(ofs){
 		ofs<<file<<" "<<offset;
-	}	
+	}
 	return 0;
 }
 
@@ -238,7 +223,7 @@ int main(int argc, char** argv) {
 	google::InitGoogleLogging(argv[0]);
 	google::SetLogDestination(google::INFO, "log/binlog-hunter.");
 	google::SetLogDestination(google::ERROR, "log/binlog-hunter.wf.");
-	
+
 	config my_conf("conf/binlog-hunter.conf");
 	int log_level = my_conf["log"]["debug"].to_int();
 	if(log_level == 0)
@@ -250,7 +235,7 @@ int main(int argc, char** argv) {
 	Binary_log binlog(create_transport(mysql_info.c_str()));
 	if(0 != binlog.connect()){
 		LOG(ERROR)<<"connect mysql failed, mysql url="<<mysql_info;
-		return 0;	
+		return 0;
 	}
 	LOG(INFO)<<"connect mysql success, mysql url="<<mysql_info;
 
@@ -283,7 +268,7 @@ int main(int argc, char** argv) {
 			LOG(ERROR)<<"wait for next event error, ret="<<result;
 			break;
 		}
-	
+
 		save_position(g_binlogfile, g_offset);
 		LOG_IF(INFO, g_debug_flag)<<"get event : "<<event->get_event_type();
   }

@@ -20,12 +20,9 @@ int cache_key::add(const char* name, const char* value){
 }
 
 std::string cache_key::gen_key(){
-	std::string key = prefix != "" ? prefix+split : "";
+	std::string key = "";
 	for(size_t i = 0; i < fields_order.size(); i++){
-		if(i == 0)
-			key += fields[fields_order[i]];
-		else
-			key += split + fields[fields_order[i]];
+		key += fields[fields_order[i]];
 	}
-	return suffix != "" ? key+split+suffix : key;
+	return key;
 }

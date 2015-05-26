@@ -3,9 +3,6 @@
 class cache_key
 {
 	public:
-		std::string prefix;
-		std::string suffix;
-		std::string split;
 		std::vector<std::string> fields_order;
 		std::map<std::string, std::string> fields;
 
