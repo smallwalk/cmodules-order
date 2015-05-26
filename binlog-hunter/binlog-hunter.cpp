@@ -191,6 +191,24 @@ class row_handler : public mysql::Content_handler
 			return NULL;
 		}
 
+        void print_row(const std::string& db, const std::string& table, long int timestamp, const mysql::Row_of_fields& fields){
+            mysql::Converter converter;
+            int col = 0;
+            int field_index_cnt = 0;
+
+            std::string row_id;
+            LOG_IF(INFO, g_debug_flag)<<"timestamp: "<<timestamp<<" size: "<<fields.size()
+                <<" db: "<<db<<" table: "<<table;
+
+            std::string data = "";
+            for(int i = 0; i < fields.size(); i++){
+                std::string str;
+                converter.to(str, fields[i]);
+                data += "|"+str;
+            }
+            LOG_IF(INFO, g_debug_flag)<<data<<"|";
+        }
+
 	private:
 		Table_Index* m_ti;
 		Binary_log* m_bin;
