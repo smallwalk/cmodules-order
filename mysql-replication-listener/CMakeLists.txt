@@ -8,6 +8,9 @@ set(CMAKE_CXX_FLAGS "")
 set(CMAKE_CXX_FLAGS_DEBUG "-g3 -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall")
 
+include_directories("/home/work/mysql-5.6.24/include")
+link_directories("/home/work/mysql-5.6.24/libmysql")
+
 set(MYSQL_BINLOG_VERSION_MAJOR "0")
 set(MYSQL_BINLOG_VERSION_MINOR "1")
 set(MYSQL_BINLOG_VERSION_PATCH "0")
