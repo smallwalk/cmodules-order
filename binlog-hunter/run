@@ -1,5 +1,5 @@
 #!/bin/sh
 
-export  LD_LIBRARY_PATH=LD_LIBRARY_PATH:/home/work/cmodule-order/mysql-replication-listener/lib/:/home/work/mysql-5.6.24/libmysql/
+export  LD_LIBRARY_PATH=LD_LIBRARY_PATH:/home/work/cmodules-order/mysql-replication-listener/lib/:/home/work/mysql-5.6.24/libmysql/
 
 ./binlog-hunter
