@@ -160,12 +160,12 @@ class row_handler : public mysql::Content_handler
 					mysql::Row_of_fields fields = *it;
 					long int timestamp = event->header()->timestamp;
 
-					std::cout << "table: " << table_name << std::endl;
 					
-
+					cache_key* ck = m_cache_key.table2key(db_name, table_name, fields);
+					std::string key_str = ck->gen_key();
+					std::cout << "table: " << table_name << " key_str:" << key_str << std::endl;
 
 					/*
-					cache_key* ck = m_cache_key.table2key(db_name, table_name, fields);
 					if(ck){
 						int ret = 0;
 						for(int i = 0; i < 3; i++){
